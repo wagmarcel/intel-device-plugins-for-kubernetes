@@ -80,6 +80,7 @@ type Manager struct {
 
 // NewManager creates a new instance of Manager
 func NewManager(namespace string, devicePlugin Scanner) *Manager {
+        debug.Print("Marcel 933")
 	return &Manager{
 		devicePlugin: devicePlugin,
 		namespace:    namespace,
