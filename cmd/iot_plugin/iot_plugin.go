@@ -18,6 +18,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 	//"github.com/pkg/errors"
 
 	pluginapi "k8s.io/kubernetes/pkg/kubelet/apis/deviceplugin/v1beta1"
@@ -54,6 +55,7 @@ func newDevicePlugin(sysfsDir, devfsDir string, sharedDevNum int) *devicePlugin 
 }
 
 func (dp *devicePlugin) Scan(notifier dpapi.Notifier) error {
+     debug.Print("Marcel606")
         devTree := dpapi.NewDeviceTree()
 	devTree.AddDevice("testdevice", "id", dpapi.DeviceInfo{
 	    State:  pluginapi.Healthy,
@@ -65,6 +67,7 @@ func (dp *devicePlugin) Scan(notifier dpapi.Notifier) error {
                },
 	   },
         })
+	debug.Print("Marcel404")
 	notifier.Notify(devTree)
 	return nil;
 }
@@ -73,9 +76,11 @@ func (dp *devicePlugin) Scan(notifier dpapi.Notifier) error {
 func main() {
 	var sharedDevNum int
 	var debugEnabled bool
+	var devicePluginPath string
 
 	flag.IntVar(&sharedDevNum, "shared-dev-num", 1, "number of containers sharing the same GPU device")
-	flag.BoolVar(&debugEnabled, "debug", true, "enable debug output")
+	flag.BoolVar(&debugEnabled, "debug", false, "enable debug output")
+	flag.StringVar(&devicePluginPath, "device-plugin-path", pluginapi.DevicePluginPath,  "device plugin")
 	flag.Parse()
 
 	if debugEnabled {
@@ -90,6 +95,10 @@ func main() {
 	fmt.Println("IoT device plugin started")
 
 	plugin := newDevicePlugin(sysfsDrmDirectory, devfsDriDirectory, sharedDevNum)
-	manager := dpapi.NewManager(namespace, plugin)
+	manager := dpapi.NewManager(namespace, plugin, devicePluginPath)
 	manager.Run()
+	for {
+		fmt.Println("Infinite Loop 1")
+	   	time.Sleep(time.Second * 5)
+	}
 }

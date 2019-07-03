@@ -74,16 +74,17 @@ func (n *notifier) Notify(newDeviceTree DeviceTree) {
 type Manager struct {
 	devicePlugin Scanner
 	namespace    string
+	devicePluginPath string
 	servers      map[string]devicePluginServer
-	createServer func(string, func(*pluginapi.AllocateResponse) error) devicePluginServer
+	createServer func(string, string, func(*pluginapi.AllocateResponse) error) devicePluginServer
 }
 
 // NewManager creates a new instance of Manager
-func NewManager(namespace string, devicePlugin Scanner) *Manager {
-        debug.Print("Marcel 933")
+func NewManager(namespace string, devicePlugin Scanner, devicePluginPath string) *Manager {
 	return &Manager{
 		devicePlugin: devicePlugin,
 		namespace:    namespace,
+		devicePluginPath: devicePluginPath,
 		servers:      make(map[string]devicePluginServer),
 		createServer: newServer,
 	}
@@ -116,7 +117,7 @@ func (m *Manager) handleUpdate(update updateInfo) {
 			postAllocate = postAllocator.PostAllocate
 		}
 
-		m.servers[devType] = m.createServer(devType, postAllocate)
+		m.servers[devType] = m.createServer(devType, m.devicePluginPath, postAllocate)
 		go func(dt string) {
 			err := m.servers[dt].Serve(m.namespace)
 			if err != nil {
