@@ -1,0 +1,7 @@
+{
+    "id": "1234567890",
+    "name": "testdevice",
+    "hostPath": "/dev/dummy/device",
+    "containerPath": "/dev/device",
+    "permission": "permission"
+}

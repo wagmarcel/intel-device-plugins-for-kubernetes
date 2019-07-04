@@ -191,7 +191,6 @@ func (srv *server) getState() serverState {
 func (srv *server) setupAndServe(namespace string, devicePluginPath string, kubeletSocket string) error {
 	resourceName := namespace + "/" + srv.devType
 	pluginPrefix := namespace + "-" + srv.devType
-	debug.Print("Marcel921", devicePluginPath);
 	srv.setState(serving)
 
 	for srv.getState() == serving {

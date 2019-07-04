@@ -19,55 +19,68 @@ import (
 	"fmt"
 	"os"
 	"time"
-	//"github.com/pkg/errors"
-
+	"encoding/json"
+	"io/ioutil"
+	"strconv"
+	 
 	pluginapi "k8s.io/kubernetes/pkg/kubelet/apis/deviceplugin/v1beta1"
-
 	"github.com/intel/intel-device-plugins-for-kubernetes/pkg/debug"
 	dpapi "github.com/intel/intel-device-plugins-for-kubernetes/pkg/deviceplugin"
 )
 
 const (
-	sysfsDrmDirectory = "/sys/class/testdevice"
-	devfsDriDirectory = "/dev/test"
-	gpuDeviceRE       = `^card[0-9]+$`
-	controlDeviceRE   = `^controlD[0-9]+$`
+	//sysfsDrmDirectory = "/sys/class/testdevice"
+	//devfsDriDirectory = "/dev/test"
 	vendorString      = "0x1234"
 
 	// Device plugin settings.
-	namespace  = "org.ibn4_0"
-	deviceType = "sensor"
+	namespace  = "org.industry-business-network"
+	deviceType = "preconfigured"
 )
 
 type devicePlugin struct {
 	sysfsDir string
 	devfsDir string
-
 	sharedDevNum int
 }
 
-func newDevicePlugin(sysfsDir, devfsDir string, sharedDevNum int) *devicePlugin {
+const deviceConfigFileName = "/etc/deviceconfig.json"
+
+func newDevicePlugin(sharedDevNum int) *devicePlugin {
 	return &devicePlugin{
-		sysfsDir:         sysfsDir,
-		devfsDir:         devfsDir,
 		sharedDevNum:     sharedDevNum,
 	}
 }
 
+//scanning is currently mocked by a config file in "/etc/deviceconfig"
+// should be: {"name": name, "id": id, "hostPath": hostPath,
+// "containerPath": containerPath, "permissions": permissions }
 func (dp *devicePlugin) Scan(notifier dpapi.Notifier) error {
-     debug.Print("Marcel606")
         devTree := dpapi.NewDeviceTree()
-	devTree.AddDevice("testdevice", "id", dpapi.DeviceInfo{
-	    State:  pluginapi.Healthy,
-	    Nodes: []pluginapi.DeviceSpec{
-	       {
-               HostPath:      "/dev/test",
-               ContainerPath: "/dev/test",
-       	       Permissions:   "rw",
-               },
-	   },
-        })
-	debug.Print("Marcel404")
+
+	deviceConfigFile, err := os.Open(deviceConfigFileName)
+	if err != nil {
+	   panic(err)
+	}
+	defer deviceConfigFile.Close()
+	byteValue, _ := ioutil.ReadAll(deviceConfigFile)
+	var result map[string]interface{}
+	json.Unmarshal([]byte(byteValue), &result)
+	fmt.Print("Name: ", result["name"])
+
+	for i := 0; i < dp.sharedDevNum; i++ {
+	    id := result["id"].(string) + strconv.Itoa(i)
+	    devTree.AddDevice(result["name"].(string), id, dpapi.DeviceInfo{
+	        State:  pluginapi.Healthy,
+	    	Nodes: []pluginapi.DeviceSpec{
+	       	       {
+               	       HostPath:      result["hostPath"].(string),
+               	       ContainerPath: result["containerPath"].(string),
+       	       	       Permissions:   result["permission"].(string),
+               	       },
+	   	},
+       	    })
+	}
 	notifier.Notify(devTree)
 	return nil;
 }
@@ -94,7 +107,7 @@ func main() {
 
 	fmt.Println("IoT device plugin started")
 
-	plugin := newDevicePlugin(sysfsDrmDirectory, devfsDriDirectory, sharedDevNum)
+	plugin := newDevicePlugin(sharedDevNum)
 	manager := dpapi.NewManager(namespace, plugin, devicePluginPath)
 	manager.Run()
 	for {
