@@ -53,25 +53,27 @@ type devicePluginServer interface {
 
 // server implements devicePluginServer and pluginapi.PluginInterfaceServer interfaces.
 type server struct {
-	devType      string
-	devicePluginPath string
-	grpcServer   *grpc.Server
-	updatesCh    chan map[string]DeviceInfo
-	devices      map[string]DeviceInfo
-	postAllocate func(*pluginapi.AllocateResponse) error
-	state        serverState
-	stateMutex   sync.Mutex
+	devType            string
+	devicePluginPath   string
+	devicePluginSocket string
+	grpcServer         *grpc.Server
+	updatesCh          chan map[string]DeviceInfo
+	devices            map[string]DeviceInfo
+	postAllocate       func(*pluginapi.AllocateResponse) error
+	state              serverState
+	stateMutex         sync.Mutex
 }
 
 // newServer creates a new server satisfying the devicePluginServer interface.
-func newServer(devType string, devicePluginPath string, postAllocate func(*pluginapi.AllocateResponse) error) devicePluginServer {
+func newServer(devType string, devicePluginPath string, devicePluginSocket string, postAllocate func(*pluginapi.AllocateResponse) error) devicePluginServer {
 	return &server{
-		devType:      devType,
-		devicePluginPath: devicePluginPath,
-		updatesCh:    make(chan map[string]DeviceInfo, 1), // TODO: is 1 needed?
-		devices:      make(map[string]DeviceInfo),
-		postAllocate: postAllocate,
-		state:        uninitialized,
+		devType:            devType,
+		devicePluginPath:   devicePluginPath,
+		devicePluginSocket: devicePluginSocket,
+		updatesCh:          make(chan map[string]DeviceInfo, 1), // TODO: is 1 needed?
+		devices:            make(map[string]DeviceInfo),
+		postAllocate:       postAllocate,
+		state:              uninitialized,
 	}
 }
 
@@ -156,7 +158,7 @@ func (srv *server) PreStartContainer(ctx context.Context, rqt *pluginapi.PreStar
 
 // Serve starts a gRPC server to serve pluginapi.PluginInterfaceServer interface.
 func (srv *server) Serve(namespace string) error {
-	return srv.setupAndServe(namespace, srv.devicePluginPath, pluginapi.KubeletSocket)
+	return srv.setupAndServe(namespace, srv.devicePluginPath, srv.devicePluginSocket)
 }
 
 // Stop stops serving pluginapi.PluginInterfaceServer interface.

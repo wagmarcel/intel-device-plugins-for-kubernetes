@@ -489,7 +489,7 @@ func TestPreStartContainer(t *testing.T) {
 }
 
 func TestNewServer(t *testing.T) {
-	_ = newServer("test", nil)
+	_ = newServer("test", "", "", nil)
 }
 
 func TestUpdate(t *testing.T) {

@@ -72,21 +72,23 @@ func (n *notifier) Notify(newDeviceTree DeviceTree) {
 // Manager manages life cycle of device plugins and handles the scan results
 // received from them.
 type Manager struct {
-	devicePlugin Scanner
-	namespace    string
-	devicePluginPath string
-	servers      map[string]devicePluginServer
-	createServer func(string, string, func(*pluginapi.AllocateResponse) error) devicePluginServer
+	devicePlugin       Scanner
+	namespace          string
+	devicePluginPath   string
+	devicePluginSocket string
+	servers            map[string]devicePluginServer
+	createServer       func(string, string, string, func(*pluginapi.AllocateResponse) error) devicePluginServer
 }
 
 // NewManager creates a new instance of Manager
-func NewManager(namespace string, devicePlugin Scanner, devicePluginPath string) *Manager {
+func NewManager(namespace string, devicePlugin Scanner, devicePluginPath string, devicePluginSocket string) *Manager {
 	return &Manager{
-		devicePlugin: devicePlugin,
-		namespace:    namespace,
-		devicePluginPath: devicePluginPath,
-		servers:      make(map[string]devicePluginServer),
-		createServer: newServer,
+		devicePlugin:       devicePlugin,
+		namespace:          namespace,
+		devicePluginPath:   devicePluginPath,
+		devicePluginSocket: devicePluginSocket,
+		servers:            make(map[string]devicePluginServer),
+		createServer:       newServer,
 	}
 }
 
@@ -117,7 +119,7 @@ func (m *Manager) handleUpdate(update updateInfo) {
 			postAllocate = postAllocator.PostAllocate
 		}
 
-		m.servers[devType] = m.createServer(devType, m.devicePluginPath, postAllocate)
+		m.servers[devType] = m.createServer(devType, m.devicePluginPath, m.devicePluginSocket, postAllocate)
 		go func(dt string) {
 			err := m.servers[dt].Serve(m.namespace)
 			if err != nil {
