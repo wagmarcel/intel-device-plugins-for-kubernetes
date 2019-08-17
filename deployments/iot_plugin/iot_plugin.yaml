@@ -22,7 +22,8 @@ spec:
               fieldRef:
                 fieldPath: spec.nodeName
         image: wagmarcel/iot-plugin:devel
-        args: ["/usr/bin/iot_device_plugin", "-debug", "-device-plugin-path", "/var/lib/rancher/k3s/agent/kubelet/device-plugins/"]
+        command: ["/usr/bin/iot_device_plugin"]
+        args: [ "-debug", "-device-plugin-path", "/var/lib/rancher/k3s/agent/kubelet/device-plugins/"]
         imagePullPolicy: IfNotPresent
         volumeMounts:
         - name: devfs
