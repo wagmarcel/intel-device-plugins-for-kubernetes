@@ -22,11 +22,23 @@ spec:
               fieldRef:
                 fieldPath: spec.nodeName
           - name: OISP_DEVICE_ACTIVATION_CODE
-            valueFrom:
-              secretKeyRef:
-                name: oisp-device-secret
-                key: activationCode
-        image: wagmarcel/oisp-iot-agent:devel
+        valueFrom:
+          secretKeyRef:
+            name: oisp-devices-secret
+            key: activationCode
+        volumeMounts:
+          - name: oisp-device-config-volume
+            mountPath: /var/config
+        image: wagmarcel/oisp-iot-agent:latest
         imagePullPolicy: IfNotPresent
+      - name: oisp-testsensor
+        image: wagmarcel/oisp-testsensor:latest
+        resources:
+          limits:
+            net.oisp/testdevice: 1
+      volumes:
+        - name: oisp-device-config-volume
+          configMap:
+            name: oisp-devices-config
       nodeSelector:
         deviceType: iot
