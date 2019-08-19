@@ -1,3 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: device-data
+  namespace: oisp-devices
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Mi
+---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -29,6 +43,8 @@ spec:
         volumeMounts:
           - name: oisp-device-config-volume
             mountPath: /var/config
+          - name: oisp-device-data-volume
+            mountPath: /var/data
         image: wagmarcel/oisp-iot-agent:latest
         imagePullPolicy: IfNotPresent
       - name: oisp-testsensor
@@ -40,5 +56,8 @@ spec:
         - name: oisp-device-config-volume
           configMap:
             name: oisp-devices-config
+        - name: oisp-device-data-volume
+          persistentVolumeClaim:
+            claimName: device-data
       nodeSelector:
         deviceType: iot
