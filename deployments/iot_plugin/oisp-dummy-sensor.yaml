@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
   name: oisp-test-sensor
   namespace: oisp-devices
@@ -49,3 +49,4 @@ spec:
             claimName: device-data
       nodeSelector:
         deviceType: iot
+        kubernetes.io/hostname: marcel-test
