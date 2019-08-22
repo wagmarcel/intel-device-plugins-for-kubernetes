@@ -11,4 +11,17 @@ spec:
   resources:
     requests:
       storage: 1Mi
-      
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: device-data-r2
+  namespace: oisp-devices
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Mi

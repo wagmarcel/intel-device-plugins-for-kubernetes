@@ -35,6 +35,24 @@ spec:
             mountPath: /volume/data
         image: wagmarcel/oisp-iot-agent:latest
         imagePullPolicy: IfNotPresent
+      - name: oisp-iot-agent-r2
+        env:
+          - name: OISP_DEVICE_ID
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: OISP_DEVICE_ACTIVATION_CODE
+            valueFrom:
+              secretKeyRef:
+                name: oisp-devices-secret
+                key: activationCode-r2
+        volumeMounts:
+          - name: oisp-device-config-volume-r2
+            mountPath: /volume/config
+          - name: oisp-device-data-volume-r2
+            mountPath: /volume/data
+        image: wagmarcel/oisp-iot-agent:latest
+        imagePullPolicy: IfNotPresent
       - name: oisp-testsensor
         image: wagmarcel/oisp-testsensor:latest
         resources:
@@ -44,9 +62,21 @@ spec:
         - name: oisp-device-config-volume
           configMap:
             name: oisp-devices-config
+            items:
+            - key: config.json.r1
+              path: config.json
+        - name: oisp-device-config-volume-r2
+          configMap:
+            name: oisp-devices-config
+            items:
+            - key: config.json.r2
+              path: config.json 
         - name: oisp-device-data-volume
           persistentVolumeClaim:
             claimName: device-data
+        - name: oisp-device-data-volume-r2
+          persistentVolumeClaim:
+            claimName: device-data-r2
       nodeSelector:
         deviceType: iot
         kubernetes.io/hostname: marcel-test
