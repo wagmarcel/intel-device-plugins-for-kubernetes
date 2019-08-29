@@ -18,6 +18,24 @@
 	"startValue": 20
     },
     {
+        "agents": [
+	    {
+		"port": 41234,
+		"host": "127.0.0.1"
+	    },
+	    {
+		"port": 41244,
+		"host": "127.0.0.1"
+	    }
+	],
+	"name": "humiditySensor",
+	"componentName": "humidity",
+	"componentType": "humidity.v1.0",
+	"type": "number",
+	"sigma": 0.5,
+	"startValue": 50
+    },
+    {
 	"agents": [
 	    {
 		"port": 41244,
