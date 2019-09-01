@@ -20,9 +20,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
 	"time"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/intel/intel-device-plugins-for-kubernetes/pkg/debug"
 	dpapi "github.com/intel/intel-device-plugins-for-kubernetes/pkg/deviceplugin"
 	pluginapi "k8s.io/kubernetes/pkg/kubelet/apis/deviceplugin/v1beta1"
@@ -31,11 +31,11 @@ import (
 const (
 	//sysfsDrmDirectory = "/sys/class/testdevice"
 	//devfsDriDirectory = "/dev/test"
-	vendorString = "0x1234"
+	//vendorString = "0x1234"
 
 	// Device plugin settings.
-	namespace  = "net.oisp"
-	deviceType = "preconfigured"
+	namespace  = "oisp.net"
+	//deviceType = "preconfigured"
 )
 
 type devicePlugin struct {
@@ -44,7 +44,7 @@ type devicePlugin struct {
 	sharedDevNum int
 }
 
-const deviceConfigFileName = "/etc/deviceconfig.json"
+const deviceConfigFileName = "/etc/oisp/deviceconfig.json"
 
 func newDevicePlugin(sharedDevNum int) *devicePlugin {
 	return &devicePlugin{
@@ -52,31 +52,40 @@ func newDevicePlugin(sharedDevNum int) *devicePlugin {
 	}
 }
 
-//scanning is currently mocked by a config file in "/etc/deviceconfig"
+//scanning is currently mocked by a either config file in "/etc/oisp/deviceconfig" or env variable PLUGIN_CONFIG
 // should be: {"name": name, "id": id, "hostPath": hostPath,
 // "containerPath": containerPath, "permissions": permissions }
 func (dp *devicePlugin) Scan(notifier dpapi.Notifier) error {
 	devTree := dpapi.NewDeviceTree()
 
+	// There are two potential sources for deviceConfig:
+	// (1) config file in /etc/oisp/deviceconfig.json
+	// (2) env variable PLUGIN_CONFIG
+	var byteValue []byte
 	deviceConfigFile, err := os.Open(deviceConfigFileName)
-	if err != nil {
-		panic(err)
-	}
 	defer deviceConfigFile.Close()
-	byteValue, _ := ioutil.ReadAll(deviceConfigFile)
-	var result map[string]interface{}
+	if err != nil {
+		log.Info("No file found in /etc/oisp, now trying env variable. Err from reading file: ", err)
+		if byteValue = []byte(os.Getenv("PLUGIN_CONFIG")); len(byteValue) == 0 {
+			panic("No configuration found.")
+		}
+	} else {
+		byteValue, _ = ioutil.ReadAll(deviceConfigFile)
+	}
+	var result []map[string]interface{}
 	json.Unmarshal([]byte(byteValue), &result)
-	fmt.Print("Name: ", result["name"])
+	log.Info("Found resources: ", result)
+	log.Info("Number of resources: ", len(result))
 
-	for i := 0; i < dp.sharedDevNum; i++ {
-		id := result["id"].(string) + strconv.Itoa(i)
-		devTree.AddDevice(result["name"].(string), id, dpapi.DeviceInfo{
+	for i := 0; i < len(result); i++ {
+		id := result[i]["id"].(string)
+		devTree.AddDevice(result[i]["name"].(string), id, dpapi.DeviceInfo{
 			State: pluginapi.Healthy,
 			Nodes: []pluginapi.DeviceSpec{
 				{
-					HostPath:      result["hostPath"].(string),
-					ContainerPath: result["containerPath"].(string),
-					Permissions:   result["permission"].(string),
+					HostPath:      result[i]["hostPath"].(string),
+					ContainerPath: result[i]["containerPath"].(string),
+					Permissions:   result[i]["permission"].(string),
 				},
 			},
 		})
@@ -110,7 +119,7 @@ func main() {
 	manager := dpapi.NewManager(namespace, plugin, devicePluginPath, devicePluginPath+"kubelet.sock")
 	manager.Run()
 	for {
-		fmt.Println("Infinite Loop 1")
-		time.Sleep(time.Second * 5)
+		fmt.Println("Heartbeat")
+		time.Sleep(time.Second * 10)
 	}
 }
