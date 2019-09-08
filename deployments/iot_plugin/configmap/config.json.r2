@@ -23,8 +23,8 @@
 			"strictSSL": false,
 			"timeout": 30000,
 			"proxy": {
-				"host": false,
-				"port": false
+				"host": "http://proxy-mu.intel.com",
+				"port": 911 
 			}
 		},
 		"ws": {
@@ -37,8 +37,8 @@
 			"enablePingPong": true,
 			"secure": true,
 			"proxy": {
-				"host": false,
-				"port": false
+				"host": "http://proxy-mu.intel.com",
+				"port": 911
 			}
 		}
 	}

@@ -1,4 +1,5 @@
-NAMESPACE=oisp-devices
+#NAMESPACE=oisp-devices
+NAMESPACE=default
 CONFIG_MAP_NAME=oisp-devices-config
 kubectl create namespace ${NAMESPACE} 2>/dev/null || echo "Namespace already exists. Continue."
 kubectl delete configmap ${CONFIG_MAP_NAME} -n ${NAMESPACE} 2>/dev/null || echo "ConfigMap not existing. Continue."
