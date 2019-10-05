@@ -3,5 +3,6 @@
     "name": "testdevice",
     "hostPath": "/dev/ttyS1",
     "containerPath": "/dev/ttyTest",
-    "permission": "rw"
+    "permission": "rw",
+    "gid": 1000
 }]

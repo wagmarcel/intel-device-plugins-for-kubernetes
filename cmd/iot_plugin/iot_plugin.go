@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"syscall"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -54,7 +55,7 @@ func newDevicePlugin(sharedDevNum int) *devicePlugin {
 
 //scanning is currently mocked by a either config file in "/etc/oisp/deviceconfig" or env variable PLUGIN_CONFIG
 // should be: {"name": name, "id": id, "hostPath": hostPath,
-// "containerPath": containerPath, "permissions": permissions }
+// "containerPath": containerPath, "permissions": permissions, "gid": gid }
 func (dp *devicePlugin) Scan(notifier dpapi.Notifier) error {
 	devTree := dpapi.NewDeviceTree()
 
@@ -65,8 +66,8 @@ func (dp *devicePlugin) Scan(notifier dpapi.Notifier) error {
 	deviceConfigFile, err := os.Open(deviceConfigFileName)
 	defer deviceConfigFile.Close()
 	if err != nil {
-		log.Info("No file found in /etc/oisp, now trying env variable. Err from reading file: ", err)
-		if byteValue = []byte(os.Getenv("PLUGIN_CONFIG")); len(byteValue) == 0 {
+		log.Info("No file found in /etc/oisp, now trying env variable K8S_PLUGIN_CONFIG. Err from reading file: ", err)
+		if byteValue = []byte(os.Getenv("K8S_PLUGIN_CONFIG")); len(byteValue) == 0 {
 			panic("No configuration found.")
 		}
 	} else {
@@ -89,7 +90,32 @@ func (dp *devicePlugin) Scan(notifier dpapi.Notifier) error {
 				},
 			},
 		})
+		gid := int(result[i]["gid"].(float64))
+		hostPath := result[i]["hostPath"].(string)
+		log.Info("Changing device " + hostPath + " gid to ", gid)
+		info, err := os.Stat(hostPath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				log.Warn("File does not exist on Host.")
+			}
+			panic("Cannot manage host device")
+		} else {
+			var uid int;
+			if stat, ok := info.Sys().(*syscall.Stat_t); ok {
+				uid = int(stat.Uid)
+				log.Info("UID of device " + hostPath + ": ", uid)
+				err = os.Chown(hostPath, uid, gid)
+				if err != nil {
+					log.Error(err)
+					log.Warn("No permission to update gid!")
+				}
+			} else {
+				log.Warn("No permissions to update gid!")
+			}
+		}
 	}
+
+	//change gid of device fix
 	notifier.Notify(devTree)
 	return nil
 }
@@ -99,7 +125,6 @@ func main() {
 	var debugEnabled bool
 	var devicePluginPath string
 
-	flag.IntVar(&sharedDevNum, "shared-dev-num", 1, "number of containers sharing the same GPU device")
 	flag.BoolVar(&debugEnabled, "debug", false, "enable debug output")
 	flag.StringVar(&devicePluginPath, "device-plugin-path", pluginapi.DevicePluginPath, "device plugin")
 	flag.Parse()
@@ -108,10 +133,7 @@ func main() {
 		debug.Activate()
 	}
 
-	if sharedDevNum < 1 {
-		fmt.Println("The number of containers sharing the same GPU must greater than zero")
-		os.Exit(1)
-	}
+	sharedDevNum = 1
 
 	fmt.Println("IoT device plugin started")
 
