@@ -28,9 +28,9 @@ spec:
                 name: oisp-devices-secret
                 key: activationCode
         volumeMounts:
-          - name: oisp-device-config-volume
+          - name: oisp-devices-config-volume
             mountPath: /volume/config
-          - name: oisp-device-data-volume
+          - name: oisp-devices-data-volume
             mountPath: /volume/data
         image: wagmarcel/oisp-iot-agent:latest
         imagePullPolicy: IfNotPresent
@@ -44,9 +44,9 @@ spec:
                 name: oisp-devices-secret
                 key: activationCode-r2
         volumeMounts:
-          - name: oisp-device-config-volume-r2
+          - name: oisp-devices-config-volume-r2
             mountPath: /volume/config
-          - name: oisp-device-data-volume-r2
+          - name: oisp-devices-data-volume-r2
             mountPath: /volume/data
         image: wagmarcel/oisp-iot-agent:latest
         imagePullPolicy: IfNotPresent
@@ -56,33 +56,33 @@ spec:
           - name: LOG_LEVEL
             value: "info"
         volumeMounts:
-        - name: oisp-device-upmth02sensor-config
+        - name: oisp-devices-upmth02sensor-config
           mountPath: /etc/oisp
         resources:
           limits:
             oisp.net/upm-th02: 1
       volumes:
-        - name: oisp-device-config-volume
+        - name: oisp-devices-config-volume
           configMap:
             name: oisp-devices-config
             items:
             - key: config.json.r1
               path: config.json
-        - name: oisp-device-config-volume-r2
+        - name: oisp-devices-config-volume-r2
           configMap:
             name: oisp-devices-config
             items:
             - key: config.json.r2
               path: config.json
-        - name: oisp-device-upmth02sensor-config
+        - name: oisp-devices-upmth02sensor-config
           configMap:
             name: oisp-devices-config
             items:
             - key: sensorSpecs.json
               path: sensorSpecs.json
-        - name: oisp-device-data-volume
+        - name: oisp-devices-data-volume
           persistentVolumeClaim:
-            claimName: device-data
-        - name: oisp-device-data-volume-r2
+            claimName: <NODENAME>-device-data
+        - name: oisp-devices-data-volume-r2
           persistentVolumeClaim:
-            claimName: device-data-r2
+            claimName: <NODENAME>-device-data-r2

@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: <NODENAME>-device-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: <NODENAME>-device-data-r2
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Mi
