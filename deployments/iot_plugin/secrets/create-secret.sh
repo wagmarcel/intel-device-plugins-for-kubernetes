@@ -1,6 +1,6 @@
 #NAMESPACE=oisp-devices
-NAMESPACE=default
+NAMESPACE=${NAMESPACE:-default}
 SECRET_NAME=oisp-devices-secret
-kubectl create namespace ${NAMESPACE} 2>/dev/null || echo "Namespace already exists. Continue."
+kubectl create namespace ${NAMESPACE} 2>/dev/null || echo "Namespace $NAMESPACE already exists. Continue."
 kubectl delete secret ${SECRET_NAME} -n ${NAMESPACE} 2>/dev/null || echo "Secret not existing. Continue."
 kubectl create secret generic ${SECRET_NAME} --from-file=./activationCode --from-file=./activationCode-r2 -n ${NAMESPACE} 

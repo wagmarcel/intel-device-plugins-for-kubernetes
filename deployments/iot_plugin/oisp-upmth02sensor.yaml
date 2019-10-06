@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oisp-upmth02sensor
+  namespace: default
+  labels:
+    app: oisp-test-sensor
+spec:
+  selector:
+    matchLabels:
+      app: oisp-test-sensor
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: oisp-test-sensor
+    spec:
+      containers:
+      - name: oisp-iot-agent
+        env:
+          - name: OISP_DEVICE_ID
+            value: "worker2"
+          - name: OISP_DEVICE_ACTIVATION_CODE
+            valueFrom:
+              secretKeyRef:
+                name: oisp-devices-secret
+                key: activationCode
+        volumeMounts:
+          - name: oisp-device-config-volume
+            mountPath: /volume/config
+          - name: oisp-device-data-volume
+            mountPath: /volume/data
+        image: wagmarcel/oisp-iot-agent:latest
+        imagePullPolicy: IfNotPresent
+      - name: oisp-iot-agent-r2
+        env:
+          - name: OISP_DEVICE_ID
+            value: "worker2-r2"
+          - name: OISP_DEVICE_ACTIVATION_CODE
+            valueFrom:
+              secretKeyRef:
+                name: oisp-devices-secret
+                key: activationCode-r2
+        volumeMounts:
+          - name: oisp-device-config-volume-r2
+            mountPath: /volume/config
+          - name: oisp-device-data-volume-r2
+            mountPath: /volume/data
+        image: wagmarcel/oisp-iot-agent:latest
+        imagePullPolicy: IfNotPresent
+      - name: oisp-upmth02sensor
+        image: wagmarcel/oisp-upmth02sensor:devel
+        env:
+          - name: LOG_LEVEL
+            value: "info"
+        volumeMounts:
+        - name: oisp-device-upmth02sensor-config
+          mountPath: /etc/oisp
+        resources:
+          limits:
+            oisp.net/upmth02sensor: 1
+      volumes:
+        - name: oisp-device-config-volume
+          configMap:
+            name: oisp-devices-config
+            items:
+            - key: config.json.r1
+              path: config.json
+        - name: oisp-device-config-volume-r2
+          configMap:
+            name: oisp-devices-config
+            items:
+            - key: config.json.r2
+              path: config.json
+        - name: oisp-device-upmth02sensor-config
+          configMap:
+            name: oisp-devices-config
+            items:
+            - key: sensorSpecs.json
+              path: sensorSpecs.json
+        - name: oisp-device-data-volume
+          persistentVolumeClaim:
+            claimName: device-data
+        - name: oisp-device-data-volume-r2
+          persistentVolumeClaim:
+            claimName: device-data-r2
