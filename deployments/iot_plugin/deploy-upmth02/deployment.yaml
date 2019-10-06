@@ -16,8 +16,8 @@ spec:
       labels:
         app: oisp-upmth02-sensor
     spec:
-      nodeSelector
-	 kubernetes.io/hostname: <NODENAME>	
+      nodeSelector:
+        kubernetes.io/hostname: <NODENAME>	
       containers:
       - name: oisp-iot-agent
         env:
@@ -26,7 +26,7 @@ spec:
           - name: OISP_DEVICE_ACTIVATION_CODE
             valueFrom:
               secretKeyRef:
-                name: oisp-devices-secret
+                name: global-devices-secret
                 key: activationCode
         volumeMounts:
           - name: config-volume
@@ -42,7 +42,7 @@ spec:
           - name: OISP_DEVICE_ACTIVATION_CODE
             valueFrom:
               secretKeyRef:
-                name: oisp-devices-secret
+                name: global-devices-secret
                 key: activationCode-r2
         volumeMounts:
           - name: config-volume-r2
@@ -52,7 +52,7 @@ spec:
         image: wagmarcel/oisp-iot-agent:latest
         imagePullPolicy: IfNotPresent
       - name: oisp-upmth02sensor
-        image: wagmarcel/oisp-upmth02sensor:devel
+        image: wagmarcel/upmth02sensor:latest
         env:
           - name: LOG_LEVEL
             value: "info"
