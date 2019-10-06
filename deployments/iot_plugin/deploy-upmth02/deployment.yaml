@@ -16,12 +16,13 @@ spec:
       labels:
         app: oisp-upmth02-sensor
     spec:
-      nodeName: <NODENAME>
+      nodeSelector
+	 kubernetes.io/hostname: <NODENAME>	
       containers:
       - name: oisp-iot-agent
         env:
           - name: OISP_DEVICE_ID
-            value: "worker2"
+            value: "<NODENAME>"
           - name: OISP_DEVICE_ACTIVATION_CODE
             valueFrom:
               secretKeyRef:
@@ -37,7 +38,7 @@ spec:
       - name: oisp-iot-agent-r2
         env:
           - name: OISP_DEVICE_ID
-            value: "worker2-r2"
+            value: "<NODENAME>-r2"
           - name: OISP_DEVICE_ACTIVATION_CODE
             valueFrom:
               secretKeyRef:
@@ -83,6 +84,6 @@ spec:
         - name: data-volume
           persistentVolumeClaim:
             claimName: <NODENAME>-pvc-device-data
-        - name: oisp-devices-data-volume-r2
+        - name: data-volume-r2
           persistentVolumeClaim:
             claimName: <NODENAME>-pvc-device-data-r2
