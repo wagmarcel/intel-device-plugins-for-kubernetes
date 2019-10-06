@@ -74,9 +74,9 @@ spec:
             items:
             - key: config.json.r2
               path: config.json
-        - name: oisp-devices-upmth02sensor-config
+        - name: oisp-devices-upm-th02-config
           configMap:
-            name: oisp-devices-config
+            name: oisp-devices-upm-th02-config
             items:
             - key: sensorSpecs.json
               path: sensorSpecs.json
