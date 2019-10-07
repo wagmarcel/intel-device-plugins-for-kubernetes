@@ -49,12 +49,12 @@ spec:
         image: wagmarcel/oisp-iot-agent:latest
         imagePullPolicy: IfNotPresent
       - name: oisp-testsensor
-        image: wagmarcel/oisp-testsensor:latest
+        image: wagmarcel/testsensor:latest
         env:
           - name: LOG_LEVEL
             value: "verbose"
         volumeMounts:
-          - name: oisp-devices-testsensor-config
+          - name: testsensor-config
             mountPath: /etc/oisp
         resources:
           limits:
@@ -71,9 +71,9 @@ spec:
             items:
             - key: config.json.r2
               path: config.json
-        - name: oisp-devices-testsensor-config
+        - name: testsensor-config
           configMap:
-            name: global-devices-config
+            name: testsensor-config
             items:
             - key: sensorSpecs.json
               path: sensorSpecs.json

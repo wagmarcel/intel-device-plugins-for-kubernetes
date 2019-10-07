@@ -12,5 +12,9 @@ for file in $(ls *.yaml *.json); do
 done
 #kubectl create namespace ${NAMESPACE} 2>/dev/null || echo "Namespace $NAMESPACE already exists. Continue."
 #kubectl delete configmap ${CONFIG_MAP_NAME} -n ${NAMESPACE} 2>/dev/null || echo "ConfigMap not existing. Continue."
-kubectl create configmap ${CONFIG_MAP_NAME}  --from-file=./$NODENAME/sensorSpecs.json -o yaml --dry-run > $NODENAME/config.yaml 
-cat $NODENAME/*.yaml > $NODENAME/all.yaml
+kubectl create configmap ${CONFIG_MAP_NAME}  --from-file=./$NODENAME/sensorSpecs.json -o yaml --dry-run > $NODENAME/configmap.yaml 
+cat $NODENAME/configmap.yaml > $NODENAME/all.yaml
+echo --- >> $NODENAME/all.yaml
+cat $NODENAME/pvc.yaml >> $NODENAME/all.yaml
+echo --- >> $NODENAME/all.yaml
+cat $NODENAME/deployment.yaml >> $NODENAME/all.yaml

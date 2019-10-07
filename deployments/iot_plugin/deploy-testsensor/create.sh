@@ -1,7 +1,7 @@
 #NAMESPACE=oisp-devices
 NODENAME=${1:-NODENAME}
 NAMESPACE=${NAMESPACE:-default}
-CONFIG_MAP_NAME=upmth02-config
+CONFIG_MAP_NAME=testsensor-config
 
 echo Creating subdir for node $NODENAME
 mkdir -p $NODENAME
