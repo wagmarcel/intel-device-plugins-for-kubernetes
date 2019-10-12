@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: <NODENAME>-pvc-device-data
+  name: <NODENAME><ID>-pvc-device-data
 spec:
   accessModes:
     - ReadWriteOnce
@@ -14,7 +14,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: <NODENAME>-pvc-device-data-r2
+  name: <NODENAME><ID>-pvc-device-data-r2
 spec:
   accessModes:
     - ReadWriteOnce

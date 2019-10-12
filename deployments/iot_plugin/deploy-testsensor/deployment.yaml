@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name:  <NODENAME>-deployment-testsensor
+  name:  <NODENAME><ID>-deployment-testsensor
   labels:
     app: oisp-testsensor-sensor
 spec:
@@ -19,7 +19,7 @@ spec:
       - name: oisp-iot-agent
         env:
           - name: OISP_DEVICE_ID
-            value: "<NODENAME>"
+            value: "<NODENAME><ID>"
           - name: OISP_DEVICE_ACTIVATION_CODE
             valueFrom:
               secretKeyRef:
@@ -35,7 +35,7 @@ spec:
       - name: oisp-iot-agent-r2
         env:
           - name: OISP_DEVICE_ID
-            value: "<NODENAME>-r2"
+            value: "<NODENAME><ID>-r2"
           - name: OISP_DEVICE_ACTIVATION_CODE
             valueFrom:
               secretKeyRef:
@@ -79,9 +79,9 @@ spec:
               path: sensorSpecs.json
         - name: oisp-devices-data-volume
           persistentVolumeClaim:
-            claimName: <NODENAME>-pvc-device-data 
+            claimName: <NODENAME><ID>-pvc-device-data 
         - name: oisp-devices-data-volume-r2
           persistentVolumeClaim:
-            claimName: <NODENAME>-pvc-device-data-r2
+            claimName: <NODENAME><ID>-pvc-device-data-r2
       nodeSelector:
          kubernetes.io/hostname: <NODENAME>
