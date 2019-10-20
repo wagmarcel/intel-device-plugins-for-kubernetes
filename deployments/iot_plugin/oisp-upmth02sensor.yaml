@@ -59,7 +59,7 @@ spec:
           mountPath: /etc/oisp
         resources:
           limits:
-            oisp.net/upmth02sensor: 1
+            oisp.net/upm-th02: 1
       volumes:
         - name: oisp-device-config-volume
           configMap:

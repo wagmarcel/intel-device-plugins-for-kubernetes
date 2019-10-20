@@ -30,5 +30,18 @@
 	"type": "number",
 	"sigma": 0.5,
 	"startValue": 50
+    },
+    {
+        "agents": [
+	    {
+		"port": 41244,
+		"host": "127.0.0.1"
+	    }
+	],
+	"name": "machineData",
+	"componentName": "machinedata",
+	"componentType": "machinedata.v1.1",
+	"type": "string",
+	"startValue": "data=dkjalkjj123d&1223dd-secret-xvv"
     }
 ]

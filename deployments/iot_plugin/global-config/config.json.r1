@@ -28,7 +28,7 @@
 			}
 		},
 		"ws": {
-			"host": "latest.streammyiot.com",
+			"host": "ws.latest.streammyiot.com",
 			"port": 443,
 			"minRetryTime": 2500,
 			"maxRetryTime": 600000,
