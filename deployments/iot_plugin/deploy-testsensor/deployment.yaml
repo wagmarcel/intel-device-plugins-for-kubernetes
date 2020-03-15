@@ -8,7 +8,7 @@ spec:
   selector:
     matchLabels:
       app: oisp-testsensor-sensor
-  updateStrategy:
+  strategy:
     type: RollingUpdate
   template:
     metadata:
@@ -32,27 +32,11 @@ spec:
             mountPath: /volume/data
         image: wagmarcel/oisp-iot-agent:latest
         imagePullPolicy: IfNotPresent
-      - name: oisp-iot-agent-r2
-        env:
-          - name: OISP_DEVICE_ID
-            value: "<NODENAME><ID>-r2"
-          - name: OISP_DEVICE_ACTIVATION_CODE
-            valueFrom:
-              secretKeyRef:
-                name: global-devices-secret
-                key: activationCode-r2
-        volumeMounts:
-          - name: oisp-devices-config-volume-r2
-            mountPath: /volume/config
-          - name: oisp-devices-data-volume-r2
-            mountPath: /volume/data
-        image: wagmarcel/oisp-iot-agent:latest
-        imagePullPolicy: IfNotPresent
       - name: oisp-testsensor
-        image: wagmarcel/testsensor:latest
+        image: wagmarcel/oisp-testsensor:latest
         env:
           - name: LOG_LEVEL
-            value: "verbose"
+            value: "debug"
         volumeMounts:
           - name: testsensor-config
             mountPath: /etc/oisp
@@ -65,12 +49,6 @@ spec:
             items:
             - key: config.json.r1
               path: config.json
-        - name: oisp-devices-config-volume-r2
-          configMap:
-            name: global-devices-config
-            items:
-            - key: config.json.r2
-              path: config.json
         - name: testsensor-config
           configMap:
             name: testsensor-config
@@ -80,8 +58,5 @@ spec:
         - name: oisp-devices-data-volume
           persistentVolumeClaim:
             claimName: <NODENAME><ID>-pvc-device-data 
-        - name: oisp-devices-data-volume-r2
-          persistentVolumeClaim:
-            claimName: <NODENAME><ID>-pvc-device-data-r2
       nodeSelector:
          kubernetes.io/hostname: <NODENAME>
